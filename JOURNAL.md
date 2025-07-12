@@ -77,5 +77,5 @@ void loop() {
     Serial.println(count);
   }
 }
-
 ```
+After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a flat tone can be heard. 
