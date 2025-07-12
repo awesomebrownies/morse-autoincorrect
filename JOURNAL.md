@@ -1,3 +1,13 @@
+Log #1. Our main objective was to create a circuit that utilized the speakers. Our first hassle was the infinitely long lines of the undercity. Many scavengers scrounged the streets towards the hardware sanctuary.
+
+*Unfortunately* the large sign out front said **SINGLE FILE LINE**
+
+This delayed the inevitable adventure, as our frantic petrifying speed made the components we need fly off back on the shelves. 
+
+Log #2: To create the mechanism, we constructed off a audio amplifier out of towers of solder, each pin at a time. Once finished the swarming spaghetti monster of breadboards consumed our work. The spaghetti was weak, and easily shifted. More importantly, the communication channels within, our **firmware**, had a fatal flaw. Evan worked on the first mechanism. *the button*. This was no ordinary button. As it refused to work despite every effort, neither towards staff member or any helping hand.
+
+Log #3: 
+
 ```cpp
 #include <I2S.h>
 
