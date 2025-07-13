@@ -15,17 +15,17 @@ Log #2: To create the mechanism, we constructed off a audio amplifier out of tow
 
 *4 hours exterminating the bugs within the code*
 
-Log #3: The MCU being used for the project is the SEEED XIAO RP2040. We want to interface it with the MAX98357A amp.
-
-Procedure: 
+The MCU being used for the project is the SEEED XIAO RP2040. We want to interface it with the MAX98357A amp.
+ 
 Reference the documentation on the [MCU](https://wiki.seeedstudio.com/XIAO-RP2040/) and the [amp](https://learn.adafruit.com/adafruit-max98357-i2s-class-d-mono-amp/pinouts).
 
-Assign GPIO pins 2, 3, 4 to BCLK, LRC, and DIN respectively. The RP2040 driver enforces that LRC is connected to GPIO#+1 of the BCLK pin. 
+<img width="500" height="400" alt="image" src="https://github.com/user-attachments/assets/8392701d-06e8-4235-8c27-bd56bf0f2ac4" />
+
+Assign GPIO pins 2, 3, 4 to BCLK, LRC, and DIN respectively. The RP2040 driver enforces that LRC is connected to GPIO#+1 of the BCLK pin. For example, if BCLK -> GPIO 0, then LRC -> GPIO 1. Don't ask me why it enforces that. 
 
 GAIN can be left floating or connected to GND. SD can be left floating to output stereo average. 
 
-Below is the firmware uploaded (modified from an example code).
-
+Below is the firmware uploaded (modified from an example sketch from the Arduino IDE).
 
 ```cpp
 #include <I2S.h>
@@ -77,22 +77,23 @@ void loop() {
     Serial.println(count);
   }
 }
+
 ```
-After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a flat tone can be heard. For some reason, pressing the button also changed the tone of the sound being played.
+After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a (pretty annoying) flat tone can be heard. For some reason, pressing the button also changed the tone of the sound being played. But if it works, don't fix it. 
 
 *1.5 hours spent*
 
-upgraded to orpheus pico, took some time soldering and straightening the pins because we recieved horizontal mount header pins and needed to straighen them out (took like an hour)
+We want to add a TFT display such that the user can see what is being translated. However, since the current MCU doesn't have enough GPIO pins, we upgraded to a orpheus pico. We took some time soldering and straightening the pins because we recieved horizontal mount header pins and needed to straighen them out (took like an hour) (it was painful). 
 
-rewired everything and moved from arduino IDE to PlatformIO in preparation of adding additional external files to the project.
-
-<img width="450" height="700" alt="image" src="https://github.com/user-attachments/assets/17616fc7-21bf-4ae7-b838-f89dd452d873" />
-
-spent like 30 minutes realizing why it wasn't working when migrating until I realized it wasn't uploading the code 💀.
+Hardware-wise, I rewired everything and moved from arduino IDE to PlatformIO in preparation of adding external files to the project (and because I like VSCode more).
 
 Hooked TFT display and got the backlight up.
 
-The TFT display doesn't seem to be working, even after switching from SPI0 to SPI1 (because of the amp). After a couple hours of debugging, I decided to get the autocorrect feature working in the serial monitor while we get the display situation sorted out. 
+<img width="450" height="700" alt="image" src="https://github.com/user-attachments/assets/17616fc7-21bf-4ae7-b838-f89dd452d873" />
+
+I spent like 30 minutes confused on why my firmware from PlatformIO wasn't uploading to the pico. I later realized I never specified the correct upload protocol.
+
+The TFT display doesn't seem to be working, even after switching from SPI0 to SPI1 (because of the amp). After a couple hours of head-scratching, I decided to get the autocorrect feature working in the serial monitor first before moving on to the TFT issue. 
 
 ```cpp
 int16_t  sample = AMP;
@@ -182,7 +183,7 @@ Then we need to actually detect button presses and classify them as dots or dash
 
 Now we have a buffer for all the inputs the user does! 
 
-After about 2 hours we have the "autocorrect" feature. The user must have a data/words.txt file containing a list of capital words. Upload the FS image by going to PIO Home > Project Tasks > pico > Platform > Upload Filesystem Image
+After about 2 hours I made the "autocorrect" feature. The user must have a data/words.txt file containing a list of capital words. Upload the FS image by going to PIO Home > Project Tasks > pico > Platform > Upload Filesystem Image. Basically it tries to find the word that matches the user input in words.txt, then goes to the second best option. 
 
 ```cpp
 #include <I2S.h>
@@ -312,9 +313,169 @@ void loop(){
   }
 }
 ```
-
+We spent like 30 minutes tuning/adjusting the timing of the button presses to match up to standard Morse Code. 
 
 ## Day 3
+
+I woke up and tried to type in SOS. However, the timing was insanely fast and I could never get more than two letters in, so I changed the wait time for letter gaps. Typing in HACK CLUB gives BACK CLUE! WOW!
+
+I replaced the TFT display with an OLED screen that uses I2C. According to the pinout, I have many options for the I2C bus, so I chose GPIOs 8 and 9. I must have still been half asleep while wiring, because I spent a good two hours figuring out why it didn't work (I swapped the SDA and SCL pins).
+
+<img width="984" height="898" alt="image" src="https://github.com/user-attachments/assets/0ca63e9e-c596-4a39-b93c-df049d8da1d6" />
+
+Then we just connect VDD to 3v3 and VSS to GND!
+
+For the OLED, I'll be using a SSD1306 library kindly provided by Adafruit. 
+
+```cpp
+#include <I2S.h>
+#include <LittleFS.h>
+#include <Wire.h>
+#include <Adafruit_SSD1306.h>
+
+const int DIN_PIN = 12, BCLK_PIN = 10, LRCK_PIN = 11; 
+const int BUT_PIN = 15;                               
+const int SDA_PIN = 8,  SCL_PIN = 9;                  
+
+const int SAMPLE_RATE = 16000, TONE_HZ = 1000;
+const int16_t AMP = 15000;
+const int HALF_WAVE = SAMPLE_RATE / TONE_HZ;
+I2S  i2s(OUTPUT);
+int16_t sample = AMP; uint32_t scnt = 0;
+
+Adafruit_SSD1306 oled(128, 32, &Wire, -1);            
+
+struct {const char* code; char ch;} const Morse[] = {
+  {".-",'A'},{"-...",'B'},{"-.-.",'C'},{"-..",'D'},{".",'E'},{"..-.",'F'},
+  {"--.",'G'},{"....",'H'},{"..",'I'},{".---",'J'},{"-.-",'K'},{".-..",'L'},
+  {"--",'M'},{"-.",'N'},{"---",'O'},{".--.",'P'},{"--.-",'Q'},{".-.",'R'},
+  {"...",'S'},{"-",'T'},{"..-",'U'},{"...-",'V'},{".--",'W'},{"-..-",'X'},
+  {"-.--",'Y'},{"--..",'Z'},{"-----",'0'},{"-----",'1'},{"--..",'2'},
+  {"...--",'3'},{"....-",'4'},{".....",'5'},{"-....",'6'},{"--...",'7'},
+  {"---..",'8'},{"----.",'9'},{".-.-.-",'.'},{"--..--",','},{"..--..",'?'},
+  {"-...-",'-'},{".----.",'\''},{"-.--.",'('},{"-.--.-",')'},
+  {".-...",'&'},{":",':'},{"---...",';'},{".-.-.",'+'},{"-...-",'='},
+  {"..--.-",'_'}
+};
+
+String symBuf, wordBuf, message;
+File   dictFile;
+
+void toneOut(bool on){
+  int32_t v = 0;
+  if(on){ if(scnt%HALF_WAVE==0) sample=-sample; v=sample; scnt++; }
+  i2s.write(v); i2s.write(v);
+}
+
+uint8_t levDist(const String& a,const String& b){
+  const uint8_t n=a.length(), m=b.length();
+  uint8_t v0[m+1], v1[m+1];
+  for(uint8_t j=0;j<=m;j++) v0[j]=j;
+  for(uint8_t i=0;i<n;i++){
+    v1[0]=i+1;
+    for(uint8_t j=0;j<m;j++){
+      uint8_t cost=(a[i]==b[j])?0:1;
+      v1[j+1]=min(min(v1[j]+1,v0[j+1]+1),v0[j]+cost);
+    }
+    memcpy(v0,v1,m+1);
+  }
+  return v0[m];
+}
+
+String autocorrectWord(const String& w){
+  if(!dictFile) return w;                 // wtf brah
+
+  dictFile.seek(0);
+  uint8_t best = 255; String bestWord = "";
+
+  while(dictFile.available()){
+    String d = dictFile.readStringUntil('\n');
+    d.trim(); d.toUpperCase();
+    if(d.isEmpty() || d == w) continue;
+    uint8_t dist = levDist(w,d);
+    if(dist < best){ best = dist; bestWord = d; }
+  }
+  if(bestWord==""){                       
+    dictFile.seek(0);
+    bestWord = dictFile.readStringUntil('\n');
+    bestWord.trim(); bestWord.toUpperCase();
+  }
+  return bestWord;
+}
+
+void oledPrint(const String& live, const String& msg){
+  oled.clearDisplay();
+  oled.setCursor(0,0);
+  oled.setTextSize(1);           
+  oled.print(live);              
+  oled.setCursor(0,32);
+  oled.setTextSize(1);
+  oled.println(msg);             // wraps
+  oled.display();
+}
+
+void setup(){
+  Serial.begin(115200);
+  while(!Serial) {};
+
+  // LITTLEFS
+  LittleFS.begin();
+  dictFile = LittleFS.open("/words.txt","r");
+
+  // OLED
+  Wire.setSDA(SDA_PIN); Wire.setSCL(SCL_PIN); Wire.begin();
+  oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  oled.setTextColor(SSD1306_WHITE);
+  oledPrint("READY","");
+
+  // AUDIO
+  i2s.setBCLK(BCLK_PIN); i2s.setDATA(DIN_PIN);
+  i2s.begin(SAMPLE_RATE);
+
+  pinMode(BUT_PIN, INPUT_PULLUP);
+}
+
+void loop(){
+  bool down = !digitalRead(BUT_PIN); toneOut(down);
+  static uint32_t lastEdge=0, lastUp=0; static bool lastState=false;
+  uint32_t now = millis();
+
+  if(down!=lastState){
+    uint32_t dur = now-lastEdge; lastEdge = now;
+    if(!down){                           
+      symBuf += (dur>150)?'-':'.';
+      oledPrint(symBuf, message);        
+      lastUp = now;
+    }
+    lastState = down;
+  }
+
+  // letter
+  if(!down && symBuf.length() && (now-lastUp)>350){
+    char letter='?';
+    for(auto &p:Morse) if(symBuf==p.code){ letter=p.ch; break; }
+    wordBuf += letter;
+    oledPrint(wordBuf, message);
+    symBuf="";
+  }
+
+  // word
+  if(!down && wordBuf.length() && (now-lastUp)>2000){
+    String repl = autocorrectWord(wordBuf);
+    message += repl + " ";
+    oledPrint("", message);          
+    // Serial.print("Replaced '");
+    // Serial.print(wordBuf); Serial.print("' with '");
+    // Serial.print(repl); Serial.println("'");
+    if (wordBuf == "?") {
+      repl = "WTF???";
+    }
+    oledPrint(repl, repl);
+    wordBuf="";
+  }
+}
+```
+Currently I'm working on making it translate a full sentence at once instead of word-by-word.
 
 Team Member: Evan
 
