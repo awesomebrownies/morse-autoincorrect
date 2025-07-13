@@ -1,2 +1,4 @@
-# morse code deck
-### The morse code deck is a morse code translator that takes in morse code via a button and displays it as text on the screen.
+# Morse Code Deck
+
+One of the first methods of long distance **communication** was morse code. We're bringing that back in a new light. The morse code deck **translates** morse code into text, and can even **autocorrect**!
+
