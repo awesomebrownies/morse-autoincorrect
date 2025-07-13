@@ -88,22 +88,22 @@ rewired everything and moved from arduino IDE to PlatformIO in preparation of ad
 
 spent like 30 minutes realizing why it wasn't working when migrating until I realized it wasn't uploading the code 💀.
 
-Hooked TFT display and got the backlight up. 
+Hooked TFT display and got the backlight up.
+
+The TFT display doesn't seem to be working, even after switching from SPI0 to SPI1 (because of the amp). After a couple hours of debugging, I decided to get the autocorrect feature working in the serial monitor while we get the display situation sorted out. 
+
 
 ```cpp
 #include <I2S.h>
-#include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
+#include <TFT_eSPI.h> 
 #include <SPI.h>
 
-#define TFT_GREY 0x5AEB // New colour
-
-// ---------- pin assignments ----------
+#define TFT_GREY 0x5AEB 
 const int DIN_PIN  = 12;   // SD
 const int BCLK_PIN = 10;   // BCLK
 const int LRCK_PIN = 11;   // WS (BCLK+1 by default)
-const int BUT_PIN  = 15;   // active‑low push‑button
+const int BUT_PIN  = 15;   
 
-// ---------- tone parameters ----------
 const int SAMPLE_RATE = 16000;      // Hz
 const int TONE_HZ     = 600;        // A4
 const int16_t AMP     = 15000;      // ±15 000 ≈ –3 dBFS
