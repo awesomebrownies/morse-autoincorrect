@@ -324,6 +324,10 @@ void loop(){
 ```
 
 
+Team Member: Evan
+
+I've created a simple 3d model case that can be printed in two parts. It consists of the speaker cutout, button cutout, and display cutout. I've also created a very large hole for the usb c cable so it should be able to fit no matter what.
+
 
 <img width="480" height="514" alt="Screenshot from 2025-07-13 12-02-48" src="https://github.com/user-attachments/assets/220af131-0165-41c2-8ba1-1f6961c46a68" />
 
