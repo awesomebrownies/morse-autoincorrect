@@ -78,7 +78,7 @@ void loop() {
   }
 }
 ```
-After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a flat tone can be heard. 
+After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a flat tone can be heard. For some reason, pressing the button also changed the tone of the sound being played.
 
 *1.5 hours spent*
 
@@ -92,24 +92,53 @@ Hooked TFT display and got the backlight up.
 
 The TFT display doesn't seem to be working, even after switching from SPI0 to SPI1 (because of the amp). After a couple hours of debugging, I decided to get the autocorrect feature working in the serial monitor while we get the display situation sorted out. 
 
+*5 hours spent?*
+
+For the morse code:
+
+we need a map of all the different letters the dots and dashes can encode to:
 
 ```cpp
-#include <I2S.h>
-#include <TFT_eSPI.h> 
-#include <SPI.h>
+struct {const char* code; char ch;} const Morse[] = {
+  {".-",'A'},{"-...",'B'},{"-.-.",'C'},{"-..",'D'},{".",'E'},{"..-.",'F'},
+  {"--.",'G'},{"....",'H'},{"..",'I'},{".---",'J'},{"-.-",'K'},{".-..",'L'},
+  {"--",'M'},{"-.",'N'},{"---",'O'},{".--.",'P'},{"--.-",'Q'},{".-.",'R'},
+  {"...",'S'},{"-",'T'},{"..-",'U'},{"...-",'V'},{".--",'W'},{"-..-",'X'},
+  {"-.--",'Y'},{"--..",'Z'}
+};
+```
 
-#define TFT_GREY 0x5AEB 
-const int DIN_PIN  = 12;   // SD
-const int BCLK_PIN = 10;   // BCLK
-const int LRCK_PIN = 11;   // WS (BCLK+1 by default)
-const int BUT_PIN  = 15;   
+Then we need to actually detect button presses and classify them as dots or dashes (we will just continue polling the pin in loop() because I am lazy and do not want to use interrupts): 
 
-const int SAMPLE_RATE = 16000;      // Hz
-const int TONE_HZ     = 600;        // A4
-const int16_t AMP     = 15000;      // ±15 000 ≈ –3 dBFS
-const int HALF_WAVE   = SAMPLE_RATE / TONE_HZ;   // samples per half‑cycle
+```cpp
+  if(down!=lastState){
+    uint32_t dur = now-lastEdge; lastEdge=now;
+    if(!down){                       // key released
+      symBuf += (dur>150)?'-':'.';   
+      // Serial.print("Pressed for (s) ");
+      Serial.println(dur/1000.0, 3); 
+      // Serial.print(" : “");
+      lastUp = now;
+    }
+    lastState = down;
+  }
 
-// ---------- globals ----------
+  if(!down && symBuf.length() && (now-lastUp)>300){
+    char letter='?';
+    for(auto &p:Morse){
+      if(symBuf == p.code){ letter=p.ch; break; }
+    }
+    wordBuf += letter;
+    // Serial.print("Time Pressed (in seconds):");
+    // Serial.print((now-lastUp)/1000.0, 3); // print time pressed in seconds
+    Serial.println(wordBuf);          
+    symBuf="";
+  }
+```
+
+Now we have a buffer for all the inputs the user does! 
+
+```cpp
 int16_t  sample = AMP;
 uint32_t cnt    = 0;
 
@@ -153,7 +182,7 @@ void loop() {
 }
 ```
 
-```
+```cpp
 /********************************************************************
  *  Morse → Serial with “wrong” autocorrect                Vinson H.
  ********************************************************************/
