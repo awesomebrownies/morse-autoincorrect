@@ -86,15 +86,59 @@ upgraded to orpheus pico, took some time soldering and straightening the pins be
 
 rewired everything and moved from arduino IDE to PlatformIO in preparation of adding additional external files to the project.
 
+<img width="450" height="700" alt="image" src="https://github.com/user-attachments/assets/17616fc7-21bf-4ae7-b838-f89dd452d873" />
+
 spent like 30 minutes realizing why it wasn't working when migrating until I realized it wasn't uploading the code 💀.
 
 Hooked TFT display and got the backlight up.
 
 The TFT display doesn't seem to be working, even after switching from SPI0 to SPI1 (because of the amp). After a couple hours of debugging, I decided to get the autocorrect feature working in the serial monitor while we get the display situation sorted out. 
 
+```cpp
+int16_t  sample = AMP;
+uint32_t cnt    = 0;
+
+I2S I2S(OUTPUT);
+TFT_eSPI tft = TFT_eSPI();
+
+void setup() {
+  Serial.begin(115200);
+
+  I2S.setBCLK(BCLK_PIN);
+  I2S.setDATA(DIN_PIN);
+
+  if (!I2S.begin(44100)) {
+    Serial.println("I2S init failed");
+    while (true) delay(1);
+  }
+
+  // tft.init();
+  // tft.setRotation(2);
+
+  pinMode(BUT_PIN, INPUT_PULLUP);
+}
+
+void loop() {
+
+  // tft.fillScreen(TFT_GREY);
+
+  const bool pressed = !digitalRead(BUT_PIN);      // active‑low
+  int32_t val = 0;                                
+
+  if (pressed) {
+    if (cnt % HALF_WAVE == 0) sample = -sample;
+    val = sample;                                  // funni
+    cnt++;
+  }
+
+  I2S.write((int32_t)val);   // left
+  I2S.write((int32_t)val);   // right
+}
+```
+
 *5 hours spent?*
 
-For the morse code:
+### Morse Code:
 
 we need a map of all the different letters the dots and dashes can encode to:
 
@@ -138,68 +182,21 @@ Then we need to actually detect button presses and classify them as dots or dash
 
 Now we have a buffer for all the inputs the user does! 
 
-```cpp
-int16_t  sample = AMP;
-uint32_t cnt    = 0;
-
-I2S I2S(OUTPUT);
-TFT_eSPI tft = TFT_eSPI();
-
-void setup() {
-  Serial.begin(115200);
-
-  I2S.setBCLK(BCLK_PIN);
-  I2S.setDATA(DIN_PIN);
-
-  if (!I2S.begin(44100)) {
-    Serial.println("I2S init failed");
-    while (true) delay(1);
-  }
-
-  // tft.init();
-  // tft.setRotation(2);
-
-  pinMode(BUT_PIN, INPUT_PULLUP);
-}
-
-void loop() {
-
-  // tft.fillScreen(TFT_GREY);
-
-  const bool pressed = !digitalRead(BUT_PIN);      // active‑low
-  int32_t val = 0;                                 // default: silence
-
-  if (pressed) {
-    // advance square‑wave only while audible
-    if (cnt % HALF_WAVE == 0) sample = -sample;
-    val = sample;                                  // play the tone
-    cnt++;
-  }
-
-  // feed I²S (cast removes the ambiguity)
-  I2S.write((int32_t)val);   // left
-  I2S.write((int32_t)val);   // right
-}
-```
+After about 2 hours we have the "autocorrect" feature. The user must have a data/words.txt file containing a list of capital words. Upload the FS image by going to PIO Home > Project Tasks > pico > Platform > Upload Filesystem Image
 
 ```cpp
-/********************************************************************
- *  Morse → Serial with “wrong” autocorrect                Vinson H.
- ********************************************************************/
 #include <I2S.h>
 #include <LittleFS.h>
 
-const int DIN_PIN = 12, BCLK_PIN = 10, LRCK_PIN = 11;  // audio
-const int BUT_PIN = 15;                                // morse key
+const int DIN_PIN = 12, BCLK_PIN = 10, LRCK_PIN = 11;  
+const int BUT_PIN = 15;                                
 
-// ---------- tone ----------
 const int SAMPLE_RATE = 16000, TONE_HZ = 600;
 const int16_t AMP = 15000;
 const int HALF_WAVE = SAMPLE_RATE / TONE_HZ;
 I2S  i2s(OUTPUT);
 int16_t sample = AMP; uint32_t scnt = 0;
 
-// ---------- Morse tables ----------
 struct {const char* code; char ch;} const Morse[] = {
   {".-",'A'},{"-...",'B'},{"-.-.",'C'},{"-..",'D'},{".",'E'},{"..-.",'F'},
   {"--.",'G'},{"....",'H'},{"..",'I'},{".---",'J'},{"-.-",'K'},{".-..",'L'},
@@ -208,18 +205,15 @@ struct {const char* code; char ch;} const Morse[] = {
   {"-.--",'Y'},{"--..",'Z'}
 };
 
-// ---------- globals ----------
 String symBuf, wordBuf;
 File   dictFile;
 
-/* ---------- helpers ---------- */
 void toneOut(bool on){
   int32_t v=0;
   if(on){ if(scnt%HALF_WAVE==0) sample=-sample; v=sample; scnt++; }
   i2s.write(v); i2s.write(v);
 }
 
-// classic Levenshtein (upper-case ASCII, distance ≤255)
 uint8_t levDist(const String& a, const String& b){
   const uint8_t n=a.length(), m=b.length();
   uint8_t v0[m+1], v1[m+1];
@@ -235,7 +229,6 @@ uint8_t levDist(const String& a, const String& b){
   return v0[m];
 }
 
-// returns nearest word in words.txt but never the exact same word
 String autocorrectWord(const String& w){
   if(!dictFile) return w;        // no file? give up
 
@@ -261,7 +254,7 @@ String autocorrectWord(const String& w){
 /* ---------- SETUP ---------- */
 void setup(){
   Serial.begin(115200);
-  while(!Serial) {};          // wait a moment for USB
+  while(!Serial) {};          
 
   // LittleFS
   if(!LittleFS.begin()){
@@ -279,27 +272,24 @@ void setup(){
   Serial.println("Ready. Key your Morse:");
 }
 
-/* ---------- LOOP ---------- */
 void loop(){
   bool down = !digitalRead(BUT_PIN); toneOut(down);
 
   static uint32_t lastEdge=0, lastUp=0; static bool lastState=false;
   uint32_t now = millis();
 
-  /* edge detect */
   if(down!=lastState){
     uint32_t dur = now-lastEdge; lastEdge=now;
     if(!down){                       // key released
       symBuf += (dur>150)?'-':'.';   
       // Serial.print("Pressed for (s) ");
       Serial.println(dur/1000.0, 3); 
-      // Serial.print(" → “");
+      // Serial.print(" : “");
       lastUp = now;
     }
     lastState = down;
   }
 
-  /* letter gap (>.75 s since last release) */
   if(!down && symBuf.length() && (now-lastUp)>300){
     char letter='?';
     for(auto &p:Morse){
@@ -307,22 +297,24 @@ void loop(){
     }
     wordBuf += letter;
     // Serial.print("Time Pressed (in seconds):");
-    // Serial.print((now-lastUp)/1000.0, 3); // print time pressed in seconds
-    Serial.println(wordBuf);          // live echo like “S”, “SO”, …
+    // Serial.print((now-lastUp)/1000.0, 3); 
+    Serial.println(wordBuf);          
     symBuf="";
   }
 
-  /* word gap (>5 s of silence) */
+  /* word gap (>.35 s of silence) */
   if(!down && wordBuf.length() && (now-lastUp)>350){
     Serial.println("AUTOCORRECTING…");
     String replace = autocorrectWord(wordBuf);
-    Serial.println(replace);          // e.g. “SOUP”
-    Serial.println();                 // blank line between words
+    Serial.println(replace);          
+    Serial.println();  
     wordBuf="";
   }
 }
 ```
 
+
+## Day 3
 
 Team Member: Evan
 
