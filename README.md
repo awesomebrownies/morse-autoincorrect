@@ -15,9 +15,10 @@ Auto Incorrect is a Morse code translator that purposely misinterprets the Morse
 
 ## Demo
 
-<img width="988" height="1318" alt="image" src="https://github.com/user-attachments/assets/fc81a69a-56b0-4130-98ab-ea6c8a8cef2b" />
+[<img width="988" height="1318" alt="image" src="https://github.com/user-attachments/assets/fc81a69a-56b0-4130-98ab-ea6c8a8cef2b" />](https://www.youtube.com/watch?v=icxT3AyWIOs)
 
 ---
+
 
 ## Bill of Materials (BOM)
 
