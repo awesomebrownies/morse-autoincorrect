@@ -25,12 +25,11 @@ Auto Incorrect is a Morse code translator that purposely misinterprets the Morse
 | #     | Part / Description                                     | Qty | Unit Price |  Line Total | Link                                                                                                         |
 | ----- | ------------------------------------------------------ | :-: | :--------: | :---------: | ------------------------------------------------------------------------------------------------------------ |
 | 1     | FIT0096 mini breadboard                                |  2  |   \$2.90   |    \$5.80   | [https://www.digikey.com/short/p2rhm9z5](https://www.digikey.com/short/p2rhm9z5)                             |
-| 2     | Micro‑SD reader module (level‑shifted SPI, pack of 10) |  1  |   \$8.89   |    \$8.89   | [https://a.co/d/0abNseD](https://a.co/d/0abNseD)                                                             |
-| 3     | Adafruit #1119 12 mm tactile push‑button switch        |  1  |   \$2.50   |    \$2.50   | [https://www.digikey.com/short/3c9h045w](https://www.digikey.com/short/3c9h045w)                             |
-| 4     | MAX98357A I²S 3 W class‑D audio amplifier breakout     |  1  |   \$2.51   |    \$2.51   | [https://www.aliexpress.us/item/3256808627920602.html](https://www.aliexpress.us/item/3256808627920602.html) |
-| 5     | 28 mm 8 Ω 2 W round loudspeaker (6‑pack)               |  1  |   \$5.99   |    \$5.99   | [https://a.co/d/9JGCSW6](https://a.co/d/9JGCSW6)                                                             |
-| 6     | Raspberry Pi Pico (RP2040)                             |  1  |   \$4.00   |    \$4.00   | [https://www.digikey.com/short/m0z3cmnr](https://www.digikey.com/short/m0z3cmnr)                             |
-| 7     | 0.96‑inch SSD1306 I²C OLED display                     |  1  |   \$6.99   |    \$6.99   | [https://a.co/d/j0JbNkD](https://a.co/d/j0JbNkD)                                                             |
+| 2     | Adafruit #1119 12 mm tactile push‑button switch        |  1  |   \$2.50   |    \$2.50   | [https://www.digikey.com/short/3c9h045w](https://www.digikey.com/short/3c9h045w)                             |
+| 3     | MAX98357A I²S 3 W class‑D audio amplifier breakout     |  1  |   \$2.51   |    \$2.51   | [https://www.aliexpress.us/item/3256808627920602.html](https://www.aliexpress.us/item/3256808627920602.html) |
+| 4     | 28 mm 8 Ω 2 W round loudspeaker (6‑pack)               |  1  |   \$5.99   |    \$5.99   | [https://a.co/d/9JGCSW6](https://a.co/d/9JGCSW6)                                                             |
+| 5     | Raspberry Pi Pico (RP2040)                             |  1  |   \$4.00   |    \$4.00   | [https://www.digikey.com/short/m0z3cmnr](https://www.digikey.com/short/m0z3cmnr)                             |
+| 6     | 0.96‑inch SSD1306 I²C OLED display                     |  1  |   \$6.99   |    \$6.99   | [https://a.co/d/j0JbNkD](https://a.co/d/j0JbNkD)                                                             |
 | **—** | **Subtotal**                                           |     |            | **\$36.68** |                                                                                                              |
 
 ---
