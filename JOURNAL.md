@@ -12,7 +12,7 @@ This delayed the inevitable adventure, as our frantic petrifying speed made the 
 ## Day 2
 To create the mechanism, we constructed off a audio amplifier out of towers of solder, each pin at a time. Once finished the swarming spaghetti monster of breadboards consumed our work. The spaghetti was weak, and easily shifted. More importantly, the communication channels within, our **firmware**, had a fatal flaw. Evan worked on the first mechanism. *the button*. This was no ordinary button. As it refused to work despite every effort, neither towards staff member or any helping hand.
 
-*4 hours exterminating the bugs within the code*
+*2-3 hours exterminating the bugs within the code*
 
 The MCU being used for the project is the SEEED XIAO RP2040. We want to interface it with the MAX98357A amp.
  
@@ -85,7 +85,7 @@ void loop() {
 
 After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a flat tone can be heard (YAY). For whatever reason, pressing the button unintentially changes the tone of the sound. 
 
-*2 hours spent*
+*1 hour spent*
 
 We want to add a TFT display such that the user can see what is being translated. However, since the current MCU doesn't have enough GPIO pins, we upgraded to a Orpheus Pico. We took some time soldering and straightening the pins because we recieved horizontal mount header pins and needed to straighen them out for the breadboard (took like an hour) (it was painful). 
 
@@ -143,7 +143,7 @@ void loop() {
  
 Above is just code to ensure we correctly migrated button/sound code to the Orpheus Pico. 
 
-*4 hours spent?*
+*3 hours spent?*
 
 ### Morse Code:
 
@@ -344,8 +344,6 @@ void loop(){
   }
 }
 ```
-
-*3 hours spent*
 
 ## Day 3
 
