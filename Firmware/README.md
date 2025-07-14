@@ -1,13 +1,11 @@
-Welcome to the firmware section!
+The firmware for this project was developed on PlatformIO. 
 
-To flash the orpheus pico (the raspberry pi pico equivalent), you'll need **Arduino IDE**.
+## Steps to upload code:
 
-There are a couple of different functionalities within the firmware, I'll go over them below.
-
-* Physical Component Management
-* Screen Rendering
-* Autocorrect
-* Morse Code Translation
-
-Feel free to look through the code, and good luck!
-
+1. Download and enable the PlatformIO extension in VSCode
+2. Create a new project with the Arduino framework with the Raspberry Pi Pico as the board
+3. Upload platformio.ini and build (Ctrl + Opt + B)
+4. Upload main.cpp
+5. Create a new folder called data and upload words.txt inside it.
+6. Flash code onto your device
+7. Have fun!!!
