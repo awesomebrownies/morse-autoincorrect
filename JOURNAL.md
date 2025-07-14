@@ -85,7 +85,7 @@ void loop() {
 
 After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a flat tone can be heard (YAY). For whatever reason, pressing the button unintentially changes the tone of the sound. 
 
-*1 hour spent*
+*0.5 hours spent*
 
 We want to add a TFT display such that the user can see what is being translated. However, since the current MCU doesn't have enough GPIO pins, we upgraded to a Orpheus Pico. We took some time soldering and straightening the pins because we recieved horizontal mount header pins and needed to straighen them out for the breadboard (took like an hour) (it was painful). 
 
@@ -142,8 +142,6 @@ void loop() {
 ```
  
 Above is just code to ensure we correctly migrated button/sound code to the Orpheus Pico. 
-
-*3 hours spent?*
 
 ### Morse Code:
 
@@ -445,8 +443,6 @@ For some reason, vibe coding changed a bunch of the code (ex. word randomness, t
 Schematic:
 
 <img width="540" height="333" alt="image" src="https://github.com/user-attachments/assets/854bf532-825f-4be4-928f-e4deb13e4f89" />
-
-*4 hours spent*
 
 We created a simple 3D model case that can be printed in two parts. It consists of the speaker cutout, button cutout, and display cutout. We also created a very large hole for the USB-C cable so it should be able to fit no matter what.
 
