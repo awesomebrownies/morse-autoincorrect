@@ -25,6 +25,10 @@ Assign GPIO pins 2, 3, 4 to BCLK, LRC, and DIN respectively. The RP2040 driver e
 
 GAIN can be left floating. SD can be left floating to output stereo average. 
 
+Schematic:
+
+<img width="714" height="450" alt="image" src="https://github.com/user-attachments/assets/1a2fd819-3c31-4e72-bbe0-4842414bad66" />
+
 Below is the firmware uploaded (modified from an example sketch from the Arduino IDE). This is only to test if the sound and buttons are working. The button uses an internal pullup resistor on GPIO5. 
 
 ```cpp
