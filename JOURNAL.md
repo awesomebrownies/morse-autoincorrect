@@ -354,7 +354,7 @@ While using the translator, we found that the timing was insanely fast, so we ad
 
 The TFT display was replaced with an OLED screen that uses I2C, going from 8 pins -> 4 pins. According to the pico pinout, there are many options for the I2C bus, so we chose GPIOs 8 and 9. Vinson must have still been half asleep while wiring, because he spent a good two hours figuring out why it didn't work (the SDA and SCL pins were swapped).
 
-<img width="984" height="898" alt="image" src="https://github.com/user-attachments/assets/0ca63e9e-c596-4a39-b93c-df049d8da1d6" />
+<img width="500" height="450" alt="image" src="https://github.com/user-attachments/assets/0ca63e9e-c596-4a39-b93c-df049d8da1d6" />
 
 Then we just connect VDD to 3v3 and VSS to GND!
 
@@ -677,6 +677,10 @@ void loop(){
   }
 }
 ```
+
+Schematic:
+
+<img width="540" height="333" alt="image" src="https://github.com/user-attachments/assets/854bf532-825f-4be4-928f-e4deb13e4f89" />
 
 We created a simple 3D model case that can be printed in two parts. It consists of the speaker cutout, button cutout, and display cutout. We also created a very large hole for the USB-C cable so it should be able to fit no matter what.
 
