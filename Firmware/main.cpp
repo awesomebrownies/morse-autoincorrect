@@ -61,17 +61,25 @@ uint8_t levDist(const String& a,const String& b){
 
 
 String autocorrectWord(const String& w){
-  if(!dictFile) return w;
+  if(!dictFile) return w;        // no file? give up
+
   dictFile.seek(0);
-  uint8_t best=255; String bestWord="";
+  uint8_t best=255, second=255;
+  String bestWord, secondWord;
   while(dictFile.available()){
-    String d=dictFile.readStringUntil('\n');
+    String d = dictFile.readStringUntil('\n');
     d.trim(); d.toUpperCase();
-    if(d.isEmpty()||d==w) continue;
-    uint8_t dist=levDist(w,d);
-    if(dist<best){ best=dist; bestWord=d; }
+    if(d.length()==0) continue;
+    uint8_t dist = levDist(w,d);
+    if(dist<best){
+      second=best; secondWord=bestWord;
+      best=dist;   bestWord=d;
+    }else if(dist<second){
+      second=dist; secondWord=d;
+    }
   }
-  return bestWord.length()?bestWord:w;
+  if(bestWord == w && secondWord.length()) return secondWord;
+  return bestWord.length() ? bestWord : w;
 }
 
 struct {const char* code; char ch;} const Morse[] PROGMEM = {
