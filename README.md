@@ -30,7 +30,7 @@ Auto Incorrect is a Morse code translator that purposely misinterprets the Morse
 | 4     | 28 mm 8 Ω 2 W round loudspeaker (6‑pack)               |  1  |   \$5.99   |    \$5.99   | [https://a.co/d/9JGCSW6](https://a.co/d/9JGCSW6)                                                             |
 | 5     | Raspberry Pi Pico (RP2040)                             |  1  |   \$4.00   |    \$4.00   | [https://www.digikey.com/short/m0z3cmnr](https://www.digikey.com/short/m0z3cmnr)                             |
 | 6     | 0.96‑inch SSD1306 I²C OLED display                     |  1  |   \$6.99   |    \$6.99   | [https://a.co/d/j0JbNkD](https://a.co/d/j0JbNkD)                                                             |
-| **—** | **Subtotal**                                           |     |            | **\$36.68** |                                                                                                              |
+| **—** | **Subtotal**                                           |     |            | **\$27.79** |                                                                                                              |
 
 ---
 
