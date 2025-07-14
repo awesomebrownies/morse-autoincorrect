@@ -23,9 +23,9 @@ Reference the documentation on the [MCU](https://wiki.seeedstudio.com/XIAO-RP204
 
 Assign GPIO pins 2, 3, 4 to BCLK, LRC, and DIN respectively. The RP2040 driver enforces that LRC is connected to GPIO#+1 of the BCLK pin. For example, if BCLK -> GPIO 0, then LRC -> GPIO 1. Don't ask me why it enforces that. 
 
-GAIN can be left floating or connected to GND. SD can be left floating to output stereo average. 
+GAIN can be left floating. SD can be left floating to output stereo average. 
 
-Below is the firmware uploaded (modified from an example sketch from the Arduino IDE).
+Below is the firmware uploaded (modified from an example sketch from the Arduino IDE). This is only to test if the sound and buttons are working. The button uses an internal pullup resistor on GPIO5. 
 
 ```cpp
 #include <I2S.h>
@@ -79,21 +79,22 @@ void loop() {
 }
 
 ```
-After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a (pretty annoying) flat tone can be heard. For some reason, pressing the button also changed the tone of the sound being played. But if it works, don't fix it. 
 
-*1.5 hours spent*
+After compiling and uploading the code, the speaker didn't produce any sound. However, upon "jiggling" the 5V wire, a flat tone can be heard (YAY). For whatever reason, pressing the button unintentially changes the tone of the sound. 
 
-We want to add a TFT display such that the user can see what is being translated. However, since the current MCU doesn't have enough GPIO pins, we upgraded to a orpheus pico. We took some time soldering and straightening the pins because we recieved horizontal mount header pins and needed to straighen them out (took like an hour) (it was painful). 
+*2 hours spent*
 
-Hardware-wise, I rewired everything and moved from arduino IDE to PlatformIO in preparation of adding external files to the project (and because I like VSCode more).
+We want to add a TFT display such that the user can see what is being translated. However, since the current MCU doesn't have enough GPIO pins, we upgraded to a Orpheus Pico. We took some time soldering and straightening the pins because we recieved horizontal mount header pins and needed to straighen them out for the breadboard (took like an hour) (it was painful). 
 
-Hooked TFT display and got the backlight up.
+After that, we rewired everything and moved from Arduino IDE to PlatformIO in preparation of adding external files to the project (and because VSCode is cooler).
+
+We hooked up the TFT display and got the backlight on, referencing this [guide](https://www.instructables.com/Rasberry-Pi-Zero-W-With-Arduino-TfT-ili9341/).
 
 <img width="450" height="700" alt="image" src="https://github.com/user-attachments/assets/17616fc7-21bf-4ae7-b838-f89dd452d873" />
 
-I spent like 30 minutes confused on why my firmware from PlatformIO wasn't uploading to the pico. I later realized I never specified the correct upload protocol.
+We spent like 30 minutes confused on why my firmware from PlatformIO wasn't uploading to the pico. The reason was because we didn't specify the upload protocol (picotool).
 
-The TFT display doesn't seem to be working, even after switching from SPI0 to SPI1 (because of the amp). After a couple hours of head-scratching, I decided to get the autocorrect feature working in the serial monitor first before moving on to the TFT issue. 
+The TFT display doesn't seem to be working, even after switching from SPI0 to SPI1 (because of the amp). After a couple hours of head-scratching, we decided to get the autocorrect feature working in the serial monitor first before moving on to the TFT issue. 
 
 ```cpp
 int16_t  sample = AMP;
@@ -136,8 +137,10 @@ void loop() {
   I2S.write((int32_t)val);   // right
 }
 ```
+ 
+Above is just code to ensure we correctly migrated button/sound code to the Orpheus Pico. 
 
-*5 hours spent?*
+*4 hours spent?*
 
 ### Morse Code:
 
@@ -153,7 +156,7 @@ struct {const char* code; char ch;} const Morse[] = {
 };
 ```
 
-Then we need to actually detect button presses and classify them as dots or dashes (we will just continue polling the pin in loop() because I am lazy and do not want to use interrupts): 
+Then we need to actually detect button presses and classify them as dots or dashes (we will just continue polling the pin in loop() because I (Vinson) am lazy and do not want to use interrupts): 
 
 ```cpp
   if(down!=lastState){
@@ -175,16 +178,42 @@ Then we need to actually detect button presses and classify them as dots or dash
     }
     wordBuf += letter;
     // Serial.print("Time Pressed (in seconds):");
-    // Serial.print((now-lastUp)/1000.0, 3); // print time pressed in seconds
+    // Serial.print((now-lastUp)/1000.0, 3); 
     Serial.println(wordBuf);          
     symBuf="";
   }
 ```
 
+We spent like 30 minutes tuning/adjusting the timing of the button presses to match up to standard of Morse Code.  
+
 Now we have a buffer for all the inputs the user does! 
 
-After about 2 hours I made the "autocorrect" feature. The user must have a data/words.txt file containing a list of capital words. Upload the FS image by going to PIO Home > Project Tasks > pico > Platform > Upload Filesystem Image. Basically it tries to find the word that matches the user input in words.txt, then goes to the second best option. 
+After about 2 hours we made the "autocorrect" feature. The user must have a data/words.txt file containing a list of capital words. Upload the FS image by going to PIO Home > Project Tasks > pico > Platform > Upload Filesystem Image. 
 
+### Levenshtein edit-distance
+
+The Levenshtein edit-distance scores how "different" a word is from another based on inserts/deletes/substitutes. The code scans every word in words.txt and keeps track of the best and second lowest scores. 
+
+```cpp
+uint8_t levDist(const String& a, const String& b){
+  const uint8_t n=a.length(), m=b.length();
+  uint8_t v0[m+1], v1[m+1];
+  for(uint8_t j=0;j<=m;j++) v0[j]=j;
+  for(uint8_t i=0;i<n;i++){
+    v1[0]=i+1;
+    for(uint8_t j=0;j<m;j++){
+      uint8_t cost=(a[i]==b[j])?0:1;
+      v1[j+1]=min(min(v1[j]+1,v0[j+1]+1),v0[j]+cost);
+    }
+    memcpy(v0,v1,m+1);
+  }
+  return v0[m];
+}
+```
+
+Two byte arrays (v0 & v1) are used to run the routine quickly. 
+
+Below is the code so far: 
 ```cpp
 #include <I2S.h>
 #include <LittleFS.h>
@@ -252,7 +281,6 @@ String autocorrectWord(const String& w){
   return bestWord.length() ? bestWord : w;
 }
 
-/* ---------- SETUP ---------- */
 void setup(){
   Serial.begin(115200);
   while(!Serial) {};          
@@ -313,13 +341,14 @@ void loop(){
   }
 }
 ```
-We spent like 30 minutes tuning/adjusting the timing of the button presses to match up to standard Morse Code. 
+
+*3 hours spent*
 
 ## Day 3
 
-I woke up and tried to type in SOS. However, the timing was insanely fast and I could never get more than two letters in, so I changed the wait time for letter gaps. Typing in HACK CLUB gives BACK CLUE! WOW!
+While using the translator, we found that the timing was insanely fast, so we adjusted the wait times for some of the events. 
 
-I replaced the TFT display with an OLED screen that uses I2C. According to the pinout, I have many options for the I2C bus, so I chose GPIOs 8 and 9. I must have still been half asleep while wiring, because I spent a good two hours figuring out why it didn't work (I swapped the SDA and SCL pins).
+The TFT display was replaced with an OLED screen that uses I2C, going from 8 pins -> 4 pins. According to the pico pinout, there are many options for the I2C bus, so we chose GPIOs 8 and 9. Vinson must have still been half asleep while wiring, because he spent a good two hours figuring out why it didn't work (the SDA and SCL pins were swapped).
 
 <img width="984" height="898" alt="image" src="https://github.com/user-attachments/assets/0ca63e9e-c596-4a39-b93c-df049d8da1d6" />
 
@@ -645,10 +674,7 @@ void loop(){
 }
 ```
 
-Team Member: Evan
-
-I've created a simple 3d model case that can be printed in two parts. It consists of the speaker cutout, button cutout, and display cutout. I've also created a very large hole for the usb c cable so it should be able to fit no matter what.
-
+We created a simple 3D model case that can be printed in two parts. It consists of the speaker cutout, button cutout, and display cutout. We also created a very large hole for the USB-C cable so it should be able to fit no matter what.
 
 <img width="480" height="514" alt="Screenshot from 2025-07-13 12-02-48" src="https://github.com/user-attachments/assets/220af131-0165-41c2-8ba1-1f6961c46a68" />
 
