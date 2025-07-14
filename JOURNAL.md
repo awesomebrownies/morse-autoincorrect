@@ -440,10 +440,13 @@ inline void draw(){
   }
 ```
 
+For some reason, vibe coding changed a bunch of the code (ex. word randomness, text size, etc.) We corrected them in about half an hour.
+
 Schematic:
 
 <img width="540" height="333" alt="image" src="https://github.com/user-attachments/assets/854bf532-825f-4be4-928f-e4deb13e4f89" />
 
+*4 hours spent*
 
 We created a simple 3D model case that can be printed in two parts. It consists of the speaker cutout, button cutout, and display cutout. We also created a very large hole for the USB-C cable so it should be able to fit no matter what.
 
