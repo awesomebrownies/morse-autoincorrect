@@ -15,10 +15,7 @@ Auto Incorrect is a Morse code translator that purposely misinterprets the Morse
 
 <img width="416" height="688" alt="image" src="https://github.com/user-attachments/assets/0c962748-7204-4e7f-a03e-227c0f00a98b" />
 
-## Demo (Click the Image)
-
-[<img width="500" height="650" alt="image" src="https://github.com/user-attachments/assets/fc81a69a-56b0-4130-98ab-ea6c8a8cef2b" />](https://www.youtube.com/watch?v=icxT3AyWIOs)
-
+## [Demo Link](https://www.youtube.com/watch?v=icxT3AyWIOs) 
 ---
 
 
