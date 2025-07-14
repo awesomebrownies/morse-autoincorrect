@@ -5,6 +5,18 @@ One of the first methods of long distance **communication** was Morse code. Our 
 
 Auto Incorrect is a Morse code translator that purposely misinterprets the Morse code it receives by changing what was input to something random and displaying it on the screen. It has a button to input Morse code, a speaker that plays the Morse code in real time as you input it, and a screen that displays the Morse code and word as you are typing it, and when you are done, it will auto-incorrect it.
 
+## Schematic
+
+<img width="1080" height="666" alt="image" src="https://github.com/user-attachments/assets/a8fcbb16-2045-4625-b9da-07e24b193bd0" />
+
+## 3D Model of Case
+
+<img width="416" height="688" alt="image" src="https://github.com/user-attachments/assets/0c962748-7204-4e7f-a03e-227c0f00a98b" />
+
+## Demo
+
+<img width="988" height="1318" alt="image" src="https://github.com/user-attachments/assets/fc81a69a-56b0-4130-98ab-ea6c8a8cef2b" />
+
 ---
 
 ## Bill of Materials (BOM)
@@ -22,12 +34,3 @@ Auto Incorrect is a Morse code translator that purposely misinterprets the Morse
 
 ---
 
-## Schematic
-
-<img width="1080" height="666" alt="image" src="https://github.com/user-attachments/assets/a8fcbb16-2045-4625-b9da-07e24b193bd0" />
-
-## 3D Model of Case
-
-<img width="416" height="688" alt="image" src="https://github.com/user-attachments/assets/0c962748-7204-4e7f-a03e-227c0f00a98b" />
-
-## Demo
