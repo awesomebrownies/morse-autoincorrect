@@ -442,6 +442,8 @@ inline void draw(){
 
 For some reason, vibe coding changed a bunch of the code (ex. word randomness, text size, etc.) We corrected them in about half an hour.
 
+<img width="500" height="650" alt="image" src="https://github.com/user-attachments/assets/72494e21-e2c8-4afa-a59e-a4699a2819b8" />
+
 Schematic:
 
 <img width="540" height="333" alt="image" src="https://github.com/user-attachments/assets/854bf532-825f-4be4-928f-e4deb13e4f89" />
